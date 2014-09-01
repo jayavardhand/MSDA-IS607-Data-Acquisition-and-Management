@@ -1,0 +1,30 @@
+1.What versions of R and RStudio do you have installed?
+
+#To find the version of R, run the below command in RStudio
+version
+#Result: version.string R version 3.0.2 (2013-09-25)
+
+2.What version of PostgreSQL do you have installed?
+
+To find the version, open the SQL Shell, connect to the server instance and enter the below command:
+
+select version();
+
+Result: 
+
+                           version
+-------------------------------------------------------------
+ PostgreSQL 9.3.5, compiled by Visual C++ build 1600, 64-bit
+(1 row)
+
+3.Install and load the R package DMwR. Load the data set sales and determine the number of observations contained in the data set. (In RStudio, this is easy to determine.)
+
+#Install the package
+install.packages ("DMwR")
+
+#Find the dimensions of a data frame
+library(DMwR)
+dim(sales)
+
+#Below result means there are 401146 records and 5 columns:
+[1] 401146      5
