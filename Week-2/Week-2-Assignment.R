@@ -27,14 +27,15 @@ f(2,5,6)
 
 #### Question 3####
 div <- c(1:1000)
-div3 <- div %% 3 #Save remainders when divided by 3. A non zero implies there's a remainder and is not divisible
-length(div3[which(div3!=0)]) #667 numbers are not divisible by 3. 
 
-div7 <- div %% 7 #Save remainders when divided by 3
-length(div7[which(div7!=0)]) #858 numbers are not divisible by 7
+#Check for non zero remainders when divided by 3 and 7 and 11
+div_result <- div[which(div %% 3 != 0 & div %% 7 != 0 & div %% 11 != 0)]
 
-div11 <- div %% 11 #Save remainders when divided by 3
-length(div11[which(div11!=0)]) #910 numbers are not divisible by 11
+#Count = 520
+length(div_result)
+
+#Sample of first 20 numbers for verification: 1  2  4  5  8 10 13 16 17 19 20 23 25 26 29 31 32 34 37 38
+head(div_result,20)
 
 #### Question 4####
 f <- function (f,g,h){
