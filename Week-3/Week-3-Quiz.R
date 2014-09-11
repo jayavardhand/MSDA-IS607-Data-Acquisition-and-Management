@@ -98,7 +98,7 @@ Concat(A,c('Hello','World')) #Result: Error in Concat(A, c("Hello", "World")) : 
 require(stringr)
 AfterVowel <- function(txt){
   FirstVowelPos <- which(unlist(strsplit(tolower(txt),NULL)) %in% c('a','e','i','o','u') %in% TRUE)[1]
-  substring(txt,FirstVowelPos+1,FirstVowelPos+3)
+  substring(txt,FirstVowelPos,FirstVowelPos+2)
 }
 VectorAfterVowel <- function(A){
   sapply(A, function(x) AfterVowel(x))
@@ -109,7 +109,7 @@ A = c('Bill', 'Columbia', 'Rhythm', 'Seattle')
 VectorAfterVowel(A)
 #Result (Input in first line, output in second line.):
 Bill Columbia   Rhythm  Seattle 
-"ll"    "lum"       NA    "att" 
+"ill"    "olu"       NA    "eat"
 
 #### Question 14 ####
 df <- data.frame(Month=c(10,12,3), Day=c(28,31,17), Year=c(88,12,99))
