@@ -1,0 +1,94 @@
+---
+title: "Week-4-Assignment"
+author: "Jayavardhan Daripineni"
+date: "Monday, September 22, 2014"
+output: html_document
+---
+
+**Algorithm/Steps:**
+
+1. Prepare dataset Year, Average Votes for the year (Find year of popular movies)
+
+2. Prepare dataset Year, Best Movies' count for the year 
+   and the highest value will be for the year of best movies (rule to determine 
+   best movies is provided in comments below)
+
+3. Merge both the datasets and plot them together to find the highest point 
+   of intersection which will be the year of best popular movies.
+   As it is not always possible that these lines intersect as line is drawn 
+   just to join discrete points, we'll look for the year where difference is 
+   minimum and is located as high as possible in the graph.
+   
+   
+**1. Year of Popular Movies**
+Year of Popular Movies is the year in which average votes per movie are the highest.
+A movie is popular when people talk about it (either good or bad) and rate it. It doesn't matter whether they rate it 1 or 10. People rating a movie means that there's some discussion going on about the movie and its getting popular.
+
+
+```{r}
+setwd ('C:/Users/jdaripin/Documents/IS607 - Data Acquisition and Management')
+m <- read.table("movies.tab", sep="\t", header=TRUE, quote="", comment="")
+
+require(plyr)
+T <- ddply(m, .(year), summarize, AvgVotes = sum(votes)/length(year))
+scatter.smooth(T, span=2/10, lpars = list(col = "red", lwd = 3, lty = 3))
+```
+
+We see an ever increasing trend in the average votes per movie each year as shown by fitted curve. 
+*And The year of popular movies: 1999*
+
+
+```{r}
+T[(T$AvgVotes == max(T$AvgVotes)),]
+```
+
+**2. Year of Best Movies **
+Year of Best Movies: It is the year which has highest number of best movies.
+A Best Movie is that has 2/3rds of votes that rate 8 and higher: r(8-10) * votes >= 2 * r(1-7) * votes
+
+```{r}
+require(plyr)
+B <- ddply(m, .(year), summarize, BestCount = sum(ifelse (r10+r9+r8 >= r7+r6+r5+r4+r3+r2+r1, 1, 0)))
+scatter.smooth(B, span=2/10, lpars = list(col = "red", lwd = 3, lty = 3))
+```
+
+*Year of best movies: 2004*
+```{r}
+B[(B$BestCount == max(B$BestCount)),]
+```
+
+**3. Year of Best Popular Movies **
+*The highest point of intersection of best and popular movies will be our answer.
+*In the post below, the two curves do not match proportionately (their max values are not equal)
+
+```{r}
+library(ggplot2)
+ggplot() + 
+  geom_line(data=T, aes(x=year, y=AvgVotes), color='green') + 
+  geom_line(data=B, aes(x=year, y=BestCount), color='red')
+```
+
+Proportionately raise the BestCount curve
+```{r}
+B$BestCount <- B$BestCount * (max(T$AvgVotes)/max(B$BestCount))
+```
+
+Plot again to verify. We see the peaks are at same level.
+```{r}
+library(ggplot2)
+ggplot() + 
+  geom_line(data=T, aes(x=year, y=AvgVotes), color='green') + 
+  geom_line(data=B, aes(x=year, y=BestCount), color='red')
+
+```
+
+Now, the year of best popular movies will be the highest point of intersection in the above graph which is halfway between 1999 and 2004 (years where the values are maximum). It is the year where the difference between BestCount and AvgVotes is the least between these years.
+
+Lets find it:
+```{r}
+R <- merge(B,T,by.x="year", by.y="year")
+R <- R[which(R$year <= 2004 & R$year >= 1999),]
+R[which(abs(R$BestCount-R$AvgVotes) == min(abs(R$BestCount-R$AvgVotes))),]
+```
+
+***Year of best popular movies is: 2002***
