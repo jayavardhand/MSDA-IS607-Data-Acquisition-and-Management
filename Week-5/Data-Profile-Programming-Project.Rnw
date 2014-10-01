@@ -1,0 +1,701 @@
+\documentclass{article}
+
+\title{Data Profile - Home Sales}
+\author{Jayavardhan Daripineni}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+\maketitle
+
+In this document, we profile a home sales sample data from the url below:
+
+\\Instructions: Open the file in RStudio and go to File->Comple PDF
+
+<<>>=
+Housing <- read.csv("http://www.amstat.org/publications/jse/v19n3/Decock/AmesHousing.txt", sep="\t", header=TRUE)
+@
+
+The data set 'Housing' consists of \Sexpr{ncol(Housing)} variables and \Sexpr{nrow(Housing)} observations.
+
+\maketitle
+
+We can check the types of each variable with the command 'lapply(Housing,class)' or we can see the high level summary for each variable with 'summary(Housing)' as below:
+
+
+<<>>=
+summary(Housing)
+@
+
+\maketitle
+
+We can notice that numeric columns have the statistics (Mean, Median, 1st Quartile etc.) and the non-numeric columns have counts for each value. Here are the separated Numeric and Non-Numeric columns:\\
+
+\maketitle
+
+Numeric Columns:\\
+Order, PID, MS.SubClass, Lot.Frontage, Lot.Area, Overall.Qual, Overall.Cond, Year.Built, Year.Remod.Add, Mas.Vnr.Area, BsmtFin.SF.1, BsmtFin.SF.2, Bsmt.Unf.SF, Total.Bsmt.SF, X1st.Flr.SF, X2nd.Flr.SF, Low.Qual.Fin.SF, Gr.Liv.Area, Bsmt.Full.Bath, Bsmt.Half.Bath, Full.Bath, Half.Bath, Bedroom.AbvGr, Kitchen.AbvGr, TotRms.AbvGrd, Fireplaces, Garage.Yr.Blt, Garage.Cars, Garage.Area, Wood.Deck.SF, Open.Porch.SF, Enclosed.Porch, X3Ssn.Porch, Screen.Porch, Pool.Area, Misc.Val, Mo.Sold, Yr.Sold, SalePrice\\
+
+\maketitle
+
+Non Numeric:\\
+MS.Zoning, Street, Alley, Lot.Shape, Land.Contour, Utilities, Lot.Config, Land.Slope, Neighbourhood,Condition.1, Condition.2, Bldg.Type, House.Style, Roof.Style, Roof.Matl, Exterior.1st, Exterior.2nd, Mas.Vnr.Type,Exter.Qual, Exter.Cond, Foundation, Bsmt.Qual, Bsmt.Cond, Bsmt.Exposure, BsmtFin.Type.1, BsmtFin.Type.2, Heating, Heating.QC, Central.Air, Electrical, Kitchen.Qual, Functional, Fireplace.Qu, Garage.Type, 
+Garage.Finish, Garage.Qual, Garage.Cond, Paved.Drive, Pool.QC, Fence, Misc.Feature, Sale.Type, Sale.Condition\\
+
+\maketitle
+
+Lets analyze what kind of values each of these columns have.\\
+
+\maketitle
+
+Numeric Columns:\\
+
+\maketitle
+1. Order\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$Order)
+scatter.smooth(Housing$Order)
+@
+\end{minipage}
+
+\\Discrete. This appears to be sequence number with Min and Max values as 1 and 2930 respectively. 
+But looking at the median value of 1470 which is not the same as (Min+Max)/2, it appears that the sequence has some breaks. \\
+
+\maketitle
+2. PID\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$PID)
+scatter.smooth(Housing$PID)
+@
+\end{minipage}
+\\Categorical(Nominal). Though this appears to be discrete as order PID is a 10 digit integer, it is more like a character with a preceding zero, it must be categorical.\\
+
+\maketitle
+3. MS.SubClass\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+length(unique(Housing$MS.SubClass)) #16
+library(ggplot2)
+ggplot(Housing, aes(Order,MS.SubClass)) + geom_point()
+summary(as.factor(Housing$MS.SubClass))
+@
+\end{minipage}
+
+\\Nominal. Looking at the number of unique values (16) and the plot, the variable is Nominal. Also, the highest number of occurances are for '20'\\
+
+\maketitle
+4. Lot.Frontage\\
+
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$Lot.Frontage)
+ggplot(Housing, aes(Order,Lot.Frontage)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+library(lattice)
+densityplot(Housing$Lot.Frontage)
+@
+\end{minipage}
+
+\\Continuous. There are 490 missing values which could mean either the data is missing or there is no Lot Frontage. Also, we can see there are very few with values greater than 150 and there are only two with values greater than 300. Also, most of the values are in the range of ~50-80 as shown in density plot.\\
+
+
+\maketitle
+5. Lot.Area\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$Lot.Area)
+ggplot(Housing, aes(Order,Lot.Area)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$Lot.Area)
+@
+\end{minipage}
+\\Continuous. There are very few observations above 25000 and we can consider them as ouliers for any generic analysis of the data. Also, most of the observations appear to be concentrated in the range of 10000-15000.\\
+
+\maketitle
+6. Overall.Qual\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$Overall.Qual)
+ggplot(Housing, aes(Order,Overall.Qual)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$Overall.Qual)
+@
+\end{minipage}
+\\Categorical. Its apparent from the horizontally aligned points from the ggplot above. Also, the density plot has only 10 unique points with the highest number of the observations for value 5.\\
+
+\maketitle
+7. Overall.Cond\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$Overall.Cond)
+ggplot(Housing, aes(Order,Overall.Cond)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$Overall.Cond)
+@
+\end{minipage}
+\\Categorical. Its apparent from the horizontally aligned points from the ggplot above. Also, the density plot has only 9 unique points with the highest number of the observations for value 5.\\
+
+\maketitle
+8. Year.Built\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$Year.Built)
+ggplot(Housing, aes(Order,Year.Built)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$Year.Built)
+@
+\end{minipage}
+\\Discrete as this is calendar year. Highest num of observations around 2005 as in density plot or can be seen with summary(as.factor(Housing$Year.Built))\\
+
+\maketitle
+9. Year.Remod.Add\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$Year.Remod.Add)
+ggplot(Housing, aes(Order,Year.Remod.Add)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$Year.Remod.Add)
+@
+\end{minipage}
+\\Discrete as this is the calendar year. Highest num of observations are between 2000-2008 as in density plot or can be seen with summary(as.factor(Housing$Year.Remod.Add))\\
+
+\maketitle
+10. Mas.Vnr.Area\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$Mas.Vnr.Area)
+ggplot(Housing, aes(Order,Mas.Vnr.Area)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$Mas.Vnr.Area)
+@
+\end{minipage}
+\\Continuous. Large number of observations are towards the zero.\\
+
+\maketitle
+11. BsmtFin.SF.1\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$BsmtFin.SF.1)
+ggplot(Housing, aes(Order,BsmtFin.SF.1)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$BsmtFin.SF.1)
+@
+\end{minipage}
+\\Continuous. Large number of observations are towards the zero \\
+
+\maketitle
+12. BsmtFin.SF.2\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$BsmtFin.SF.2)
+ggplot(Housing, aes(Order,BsmtFin.SF.2)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$BsmtFin.SF.2)
+@
+\end{minipage}
+\\Continuous. Large number of observations are towards the zero \\
+
+\maketitle
+13. Bsmt.Unf.SF\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$Bsmt.Unf.SF)
+ggplot(Housing, aes(Order,Bsmt.Unf.SF)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$Bsmt.Unf.SF)
+@
+\end{minipage}
+\\Continuous with highest population density between 0-500\\
+
+\maketitle
+14. Total.Bsmt.SF\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$Total.Bsmt.SF)
+ggplot(Housing, aes(Order,Total.Bsmt.SF)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$Total.Bsmt.SF)
+@
+\end{minipage}
+\\Continuous with highest population density lying halfway between 0 and 2000.\\
+
+\maketitle
+15. X1st.Flr.SF\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$X1st.Flr.SF)
+ggplot(Housing, aes(Order,X1st.Flr.SF)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$X1st.Flr.SF)
+@
+\end{minipage}
+\\Continuous with highest population density at early 1000s\\
+
+\maketitle
+16. X2nd.Flr.SF\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$X2nd.Flr.SF)
+ggplot(Housing, aes(Order,X2nd.Flr.SF)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$X2nd.Flr.SF)
+@
+\end{minipage}
+\\Continuous with large number of zeroes and highest density of non zero values between 500 and 1000.\\
+
+\maketitle
+17. Low.Qual.Fin.SF\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$Low.Qual.Fin.SF)
+ggplot(Housing, aes(Order,Low.Qual.Fin.SF)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$Low.Qual.Fin.SF)
+@
+\end{minipage}
+\\Continuous with large number of zeroes and vague number of non-zero values.\\
+
+\maketitle
+18. Gr.Liv.Area\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$Gr.Liv.Area)
+ggplot(Housing, aes(Order,Gr.Liv.Area)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$Gr.Liv.Area)
+@
+\end{minipage}
+\\Continuous with highest concentration between  ~800 and ~2000\\
+
+\maketitle
+19. Bsmt.Full.Bath\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$Bsmt.Full.Bath)
+ggplot(Housing, aes(Order,Bsmt.Full.Bath)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$Bsmt.Full.Bath)
+@
+\end{minipage}
+\\Discrete (0,1,2,3). Highest number of zeroes.\\
+
+\maketitle
+20. Bsmt.Half.Bath\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$Bsmt.Half.Bath)
+ggplot(Housing, aes(Order,Bsmt.Half.Bath)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$Bsmt.Half.Bath)
+@
+\end{minipage}
+\\Discrete (0,1,2). Highest number of zeroes\\
+
+\maketitle
+21. Full.Bath\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$Full.Bath)
+ggplot(Housing, aes(Order,Full.Bath)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$Full.Bath)
+@
+\end{minipage}
+\\Discrete. Highest number of 2's.\\
+
+\maketitle
+22. Half.Bath\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$Half.Bath)
+ggplot(Housing, aes(Order,Half.Bath)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$Half.Bath)
+@
+\end{minipage}
+\\Discrete (0,1,2). Highest number of zeroes\\
+
+\maketitle
+23. Bedroom.AbvGr\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$Bedroom.AbvGr)
+ggplot(Housing, aes(Order,Bedroom.AbvGr)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$Bedroom.AbvGr)
+@
+\end{minipage}
+\\Discrete. Highest number of 3's\\
+
+\maketitle
+24. Kitchen.AbvGr\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$Kitchen.AbvGr)
+ggplot(Housing, aes(Order,Kitchen.AbvGr)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$Kitchen.AbvGr)
+@
+\end{minipage}
+\\Discrete with highest number of 1's\\
+
+\maketitle
+25. TotRms.AbvGrd\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$TotRms.AbvGrd)
+ggplot(Housing, aes(Order,TotRms.AbvGrd)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$TotRms.AbvGrd)
+@
+\end{minipage}
+\\Discrete with highest concentration between 5 and 8. Highest number of observations are at 6.\\
+
+\maketitle
+26. Fireplaces\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$Fireplaces)
+ggplot(Housing, aes(Order,Fireplaces)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$Fireplaces)
+@
+\end{minipage}
+\\Discrete. Large number of 0's and 1's\\
+
+\maketitle
+27. Garage.Yr.Blt\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$Garage.Yr.Blt)
+ggplot(Housing, aes(Order,Garage.Yr.Blt)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$Garage.Yr.Blt)
+@
+\end{minipage}
+\\Discrete. Num of observations increase as we move from 1900 to early 2000's. There appear to be some outliers and false data as the max value is 2210 which is not supposed to be greater than current year.\\
+
+\maketitle
+28. Garage.Cars\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$Low.Qual.Fin.SF)
+ggplot(Housing, aes(Order,Low.Qual.Fin.SF)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$Low.Qual.Fin.SF)
+@
+\end{minipage}
+\\Discrete. Large number of 0's\\
+
+\maketitle
+29. Garage.Area\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$Garage.Area)
+ggplot(Housing, aes(Order,Garage.Area)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$Garage.Area)
+@
+\end{minipage}
+\\Continuous. Highest concentration is between ~400 annd ~700.\\
+
+\maketitle
+30. Wood.Deck.SF\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$Wood.Deck.SF)
+ggplot(Housing, aes(Order,Wood.Deck.SF)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$Wood.Deck.SF)
+@
+\end{minipage}
+\\Continuous. Large number of 0's and highest non-zero concentration around 250+/-100.\\
+
+\maketitle
+31. Open.Porch.SF\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$Open.Porch.SF)
+ggplot(Housing, aes(Order,Open.Porch.SF)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$Open.Porch.SF)
+@
+\end{minipage}
+\\Continuous. Large number of 0's and highest non-zero concentration between 0 and 100.\\
+
+\maketitle
+32. Enclosed.Porch\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$Enclosed.Porch)
+ggplot(Housing, aes(Order,Enclosed.Porch)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$Enclosed.Porch)
+@
+\end{minipage}
+\\Continuous. Large number of 0's and most of the non-zero population between 0 and 200.\\
+
+\maketitle
+33. X3Ssn.Porch\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$X3Ssn.Porch)
+ggplot(Housing, aes(Order,X3Ssn.Porch)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$X3Ssn.Porch)
+@
+\end{minipage}
+\\Continuous. Large number of 0's and sparse non-zero population most of which is between 100 and 300.\\
+
+\maketitle
+34. Screen.Porch\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$Screen.Porch)
+ggplot(Housing, aes(Order,Screen.Porch)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$Screen.Porch)
+@
+\end{minipage}
+\\Continuous. Large number of 0's and sparse non-zero population most of which is between 100 and 300.\\
+
+\maketitle
+35. Pool.Area\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$Pool.Area)
+ggplot(Housing, aes(Order,Pool.Area)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$Pool.Area)
+@
+\end{minipage}
+\\Continuous. Large number of 0's and sparse non-zero population randomly spread between 100 and 800.\\
+
+\maketitle
+36. Misc.Val\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$Misc.Val)
+ggplot(Housing, aes(Order,Misc.Val)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$Misc.Val)
+@
+\end{minipage}
+\\Continuous. Large zero valued population and sparse non-zeroes which are concentrated around 1000.\\
+
+\maketitle
+37. Mo.Sold\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$Mo.Sold)
+ggplot(Housing, aes(Order,Mo.Sold)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$Mo.Sold)
+@
+\end{minipage}
+\\Discrete(1-12). Concentrated between 4-8.\\
+
+\maketitle
+38. Yr.Sold\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+unique(Housing$Yr.Sold)
+summary(as.factor(Housing$Yr.Sold))
+ggplot(Housing, aes(Order,Yr.Sold)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$Yr.Sold)
+@
+\end{minipage}
+\\Discrete(2006-2010). Almost uniform distribution except 2010 with has got lesser observations.\\
+
+\maketitle
+39. SalePrice\\
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+summary(Housing$SalePrice)
+ggplot(Housing, aes(Order,SalePrice)) + geom_point()
+@
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+<<fig=true,echo=F>>=
+densityplot(Housing$SalePrice)
+@
+\end{minipage}
+\\Continuous. Highest concentration of the observations is between 100,000 and 200,000.\\
+
+\maketitle
+\\Non-Numeric:
+
+\\Lets Analyse some non-numeric values. We can get the statistics and thus the most occuring value like below:
+
+\begin{minipage}{.45\textwidth}
+<<>>=
+summary(Housing$Land.Contour) #'Lvl' is most common with 2633 observations
+summary(Housing$Foundation) #PConc and CBlock are most common
+@
+\end{minipage}
+
+
+\\We can see that homes with level contour are more popular and  sold more.
+
+\\Lets check the sale price trend over various categorical variables:
+
+\maketitle
+\\SalePrice vs Land.Contour
+<<>>=
+aggregate(SalePrice ~ Land.Contour, data=Housing, mean)
+@
+
+<<fig=true,echo=T>>=
+library(ggplot2)
+ggplot(Housing, aes(Land.Contour,SalePrice)) + geom_point() 
+@
+
+\\There's no strong relationship between Land.Contour and SalePrice as the range of sale price is not distinct for various Land contours.
+
+\maketitle
+\\SalePrice vs Gr.Liv.Area
+<<fig=true,echo=T>>=
+ggplot(Housing, aes(Gr.Liv.Area,SalePrice)) + geom_point() #Appears to have a linear relationship.
+@
+
+<<>>=
+#Lets check the strength/correlation of the linear relationship:
+cor(Housing$Gr.Liv.Area,Housing$SalePrice) #~0.71, which is strong enough.
+#Lets eliminate the outliers (first and last 2 percent of observations) and try
+G <- data.frame(Gr.Liv.Area = Housing$Gr.Liv.Area, SalePrice = Housing$SalePrice)
+G <- G[with(G, order(-SalePrice)), ] 
+G <- G[round(nrow(G)*0.02):nrow(G) - round(nrow(G)*0.02),]
+cor(G)
+@
+
+\\We can see corrleation almost remains the same. (~0.7)
+
+\maketitle
+\\Similarly, lest check the relationship between SalePrice and Lot.Area
+<<fig=true,echo=T>>=
+ggplot(Housing, aes(Lot.Area,SalePrice)) + geom_point() #Appears to have a linear relationship.
+@
+<<>>=
+#Lets check the strength/correlation of the linear relationship:
+cor(Housing$Lot.Area,Housing$SalePrice) #~0.71, which is strong enough.
+#Lets eliminate the outliers (first and last 2 percent of observations) and try
+G <- data.frame(Lot.Area = Housing$Lot.Area, SalePrice = Housing$SalePrice)
+G <- G[with(G, order(-SalePrice)), ] 
+G <- G[round(nrow(G)*0.02):nrow(G) - round(nrow(G)*0.02),]
+cor(G)
+@
+\\There doesn't appear to be any strong relationship. 
+
+\maketitle
+\\To conclude: SalePrice is mostly influenced by the Gross Living Area than any other variable that we analyzed.
+
+
+\end{document}
